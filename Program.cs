@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
+using System.Text.Json;
+using System.Diagnostics;
 using static CryCompressor.ColorConsole;
 
 namespace CryCompressor
@@ -9,7 +10,7 @@ namespace CryCompressor
     {
         const string CONFIG_PATH = "compressor-config.jsonc";
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             if (!File.Exists(CONFIG_PATH))
             {
@@ -31,8 +32,14 @@ namespace CryCompressor
                 if (config.ImageCompression.ParametersPriorityList == null || config.ImageCompression.ParametersPriorityList.Length == 0) throw new Exception("Image parameters priority list can not be empty!");
                 if (config.VideoCompression.MaxConcurrentWorkers <= 0) throw new Exception("Video max. concurrent workers can not be 0 or less!");
                 if (config.ImageCompression.MaxConcurrentWorkers <= 0) throw new Exception("Video max. concurrent workers can not be 0 or less!");
-
+     
                 // START WORK
+                var sw = Stopwatch.StartNew();
+                var c = new Compressor(config);
+                c.Start();
+
+                sw.Stop();
+                WriteLine($"Done [{sw.Elapsed.TotalMilliseconds.ToTimeString()}]");
             }
             catch (JsonException)
             {
