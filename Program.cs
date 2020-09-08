@@ -12,7 +12,7 @@ namespace CryCompressor
     {
         const string CONFIG_PATH = "compressor-config.jsonc";
 
-        static async Task Main(string[] args)
+        static async Task Main()
         {
             if (!File.Exists(CONFIG_PATH))
             {

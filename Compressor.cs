@@ -11,17 +11,17 @@ namespace CryCompressor
 {
     public class Compressor
     {
-        Configuration configuration;
+        readonly Configuration configuration;
 
         bool started;
         int fileCount;
         int filesProcessed;
-        CancellationToken tkn;
+        readonly CancellationToken tkn;
         TaskCompletionSource taskState;
 
-        ConcurrentQueue<string> videoQueue = new ConcurrentQueue<string>();
-        ConcurrentQueue<string> imageQueue = new ConcurrentQueue<string>();
-        ConcurrentQueue<string> errorQueue = new ConcurrentQueue<string>();
+        readonly ConcurrentQueue<string> videoQueue = new ConcurrentQueue<string>();
+        readonly ConcurrentQueue<string> imageQueue = new ConcurrentQueue<string>();
+        readonly ConcurrentQueue<string> errorQueue = new ConcurrentQueue<string>();
 
         public Compressor(Configuration config, CancellationToken token)
         {
