@@ -1,5 +1,5 @@
 # CryCompressor
-Cross-platform CLI for batch compressing media files using FFmpeg.
+Cross-platform CLI tool for batch compressing media files using FFmpeg.
 
 ## What is this for?
 For archiving large amounts of media files by compressing them to save space in a way that best utilizes computer's resources.
