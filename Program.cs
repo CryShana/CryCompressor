@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Text.Json;
 using System.Diagnostics;
-using static CryCompressor.ColorConsole;
-using System.Threading;
 using System.Threading.Tasks;
+using static CryCompressor.ColorConsole;
 
 namespace CryCompressor
 {
