@@ -32,6 +32,9 @@ This program will look for a `compressor-config.jsonc` configuration file and at
 
 Adjust the configuration as needed and simply run the program again when ready.
 
+## Requirements
+- FFmpeg
+
 ## Example configuration
 Assuming we have a system with a powerful GPU and CPU, we could allocate one worker to GPU, and another 2 workers to the CPU.
 
@@ -111,4 +114,5 @@ Example configuration:
   
   // If the resulting compressed file turns out to be larger than the original, delete it and just copy the original over
   "DeleteResultIfBigger": true
-}```
+}
+```
