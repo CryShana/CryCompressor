@@ -21,6 +21,8 @@ namespace CryCompressor
             "h265", "hevc", "vp9", "av1"
         };
 
+        public bool DeleteResultIfBigger { get; set; } = true;
+
         public static Configuration Load(string path) => JsonSerializer.Deserialize<Configuration>(File.ReadAllBytes(path), new JsonSerializerOptions
         {
             AllowTrailingCommas = true,
@@ -62,7 +64,7 @@ namespace CryCompressor
         public long MinSize { get; init; } = 1000 * 30; // 30kB
         public int MaxConcurrentWorkers { get; init; } = 2;
         public string[] ParametersPriorityList { get; init; } = new string[] {
-        "-c:v libwebp -qscale 90"
+            "-c:v libwebp -qscale 90"
         };
     }
 }

@@ -3,6 +3,8 @@ using System.IO;
 using System.Text.Json;
 using System.Diagnostics;
 using static CryCompressor.ColorConsole;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace CryCompressor
 {
@@ -10,18 +12,18 @@ namespace CryCompressor
     {
         const string CONFIG_PATH = "compressor-config.jsonc";
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             if (!File.Exists(CONFIG_PATH))
             {
                 Configuration.Create(CONFIG_PATH);
-                WriteLine("No configuration file found. Created new one.");
+                Console.WriteLine("No configuration file found. Created new one.");
                 return;
             }
 
             try
             {
-                var config = Configuration.Load(CONFIG_PATH);
+                var config = Configuration.Load(CONFIG_PATH); 
 
                 // VALIDATE CONFIGURATION
                 if (string.IsNullOrEmpty(config.InputDirectory) || !Directory.Exists(config.InputDirectory)) throw new Exception("Invalid input directory!");
@@ -32,13 +34,22 @@ namespace CryCompressor
                 if (config.ImageCompression.ParametersPriorityList == null || config.ImageCompression.ParametersPriorityList.Length == 0) throw new Exception("Image parameters priority list can not be empty!");
                 if (config.VideoCompression.MaxConcurrentWorkers <= 0) throw new Exception("Video max. concurrent workers can not be 0 or less!");
                 if (config.ImageCompression.MaxConcurrentWorkers <= 0) throw new Exception("Video max. concurrent workers can not be 0 or less!");
-     
+
+                // HANDLE CANCEL EVENT
+                var csc = new CancellationTokenSource();
+                Console.CancelKeyPress += (a, b) =>
+                {
+                    csc.Cancel();
+                    b.Cancel = true;
+                };
+
                 // START WORK
                 var sw = Stopwatch.StartNew();
-                var c = new Compressor(config);
-                c.Start();
+                var c = new Compressor(config, csc.Token);
+                await c.Start();
 
                 sw.Stop();
+                Console.WriteLine();
                 WriteInfo($"Done ({sw.Elapsed.TotalMilliseconds.ToTimeString()})");
             }
             catch (JsonException)
