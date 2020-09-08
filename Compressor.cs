@@ -3,6 +3,7 @@ using CryMediaAPI.Video;
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace CryCompressor
     public class Compressor
     {
         readonly Configuration configuration;
-     
+
         int fileCount;
         int filesProcessed;
         bool started, queuedone;
@@ -25,15 +26,23 @@ namespace CryCompressor
 
         readonly ConcurrentQueue<string> fileQueue = new ConcurrentQueue<string>();
         readonly ConcurrentQueue<string> videoQueue = new ConcurrentQueue<string>();
-        readonly ConcurrentQueue<string> imageQueue = new ConcurrentQueue<string>();    
-        
+        readonly ConcurrentQueue<string> imageQueue = new ConcurrentQueue<string>();
+
         readonly ConcurrentQueue<string> errorQueue = new ConcurrentQueue<string>();
         readonly ConcurrentQueue<string> warnQueue = new ConcurrentQueue<string>();
+
+        readonly SemaphoreSlim videoParamsSemaphore = new SemaphoreSlim(1);
+        readonly Dictionary<int, bool> videoParams = new Dictionary<int, bool>();
+        readonly SemaphoreSlim imageParamsSemaphore = new SemaphoreSlim(1);
+        readonly Dictionary<int, bool> imageParams = new Dictionary<int, bool>();
 
         public Compressor(Configuration config, CancellationToken token)
         {
             tkn = token;
             configuration = config;
+
+            for (int i = 0; i < config.VideoCompression.ParametersPriorityList.Length; i++) videoParams.Add(i, false);
+            for (int i = 0; i < config.ImageCompression.ParametersPriorityList.Length; i++) imageParams.Add(i, false);
         }
 
         public Task Start()
@@ -118,7 +127,7 @@ namespace CryCompressor
             taskState.SetResult();
         }
 
-        string getPath(string filename)
+        string GetPath(string filename)
         {
             var directory = Path.GetRelativePath(configuration.InputDirectory, Path.GetDirectoryName(filename));
             if (directory == ".") directory = "";
@@ -139,11 +148,14 @@ namespace CryCompressor
             {
                 if (videoQueue.TryDequeue(out string f))
                 {
-                    var dst = getPath(f);
+                    var dst = GetPath(f);
                     Process p = null;
 
+                    // choose parameters based on priority list
+                    var (pIndex, parameters) = await TakeVideoParameters();
+
                     try
-                    {
+                    {       
                         // convert
                         using var reader = new VideoReader(f);
 
@@ -156,30 +168,20 @@ namespace CryCompressor
                             continue;
                         }
 
-                        var interlacefilter = "";
-                        if (configuration.VideoCompression.InterlaceChecking)
-                        {
-                            // TODO: check if interlaced...
-
-                            interlacefilter = configuration.VideoCompression.InterlaceFilter;
-                        }
-
                         reader.Dispose();
 
-                        // TODO: choose parameters based on priority list - try to take highermost parameters if not taken - if all taken, use last one
-                        var parameters = "";
-
-                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {interlacefilter} {parameters} \"{dst}\"");
+                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters} \"{dst}\"");
                         await p.WaitForExitAsync(tkn);
+                        var code = p.ExitCode;
 
+                        // validate result
                         var result = new FileInfo(dst);
-                        if (result.Length < 1000)
+                        if (result.Length < 1000 || code != 0)
                         {
                             File.Delete(dst);
                             File.Copy(f, dst, true);
-                            throw new Exception("Video conversion failed.");
+                            throw new Exception($"Video conversion failed. (Code: {code})");
                         }
-
                         if (configuration.DeleteResultIfBigger && result.Length > new FileInfo(f).Length)
                         {
                             File.Delete(dst);
@@ -193,6 +195,8 @@ namespace CryCompressor
                     }
                     finally
                     {
+                        await ReleaseVideoParameters(pIndex);
+
                         if (p != null && !p.HasExited) p.Kill();
 
                         Interlocked.Increment(ref filesProcessed);
@@ -210,9 +214,39 @@ namespace CryCompressor
             {
                 if (imageQueue.TryDequeue(out string f))
                 {
+                    var dst = GetPath(f);
+                    Process p = null;
+
+                    // choose parameters based on priority list
+                    var (pIndex, parameters) = await TakeImageParameters();
+
                     try
                     {
                         // convert
+                        using var reader = new VideoReader(f);
+
+                        await reader.LoadMetadataAsync();
+
+                        reader.Dispose();
+
+                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters} \"{dst}\"");
+                        await p.WaitForExitAsync(tkn);
+                        var code = p.ExitCode;
+
+                        // validate result
+                        var result = new FileInfo(dst);
+                        if (result.Length < 1000 || code != 0)
+                        {
+                            File.Delete(dst);
+                            File.Copy(f, dst, true);
+                            throw new Exception($"Image conversion failed. (Code: {code})");
+                        }
+                        if (configuration.DeleteResultIfBigger && result.Length > new FileInfo(f).Length)
+                        {
+                            File.Delete(dst);
+                            File.Copy(f, dst, true);
+                            warnQueue.Enqueue($"Converted image was larger than original, overwriting it. ('{f}')");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -220,6 +254,10 @@ namespace CryCompressor
                     }
                     finally
                     {
+                        await ReleaseImageParameters(pIndex);
+
+                        if (p != null && !p.HasExited) p.Kill();
+
                         Interlocked.Increment(ref filesProcessed);
                     }
                 }
@@ -237,7 +275,7 @@ namespace CryCompressor
                 {
                     try
                     {
-                        var dst = getPath(f);
+                        var dst = GetPath(f);
                         File.Copy(f, dst, true);
                     }
                     catch (Exception ex)
@@ -254,5 +292,90 @@ namespace CryCompressor
                 await Task.Delay(10);
             }
         }
+
+        async Task<(int Index, string Parameters)> TakeVideoParameters()
+        {
+            // pick the first parameters available - if last, take last one.
+
+            await videoParamsSemaphore.WaitAsync();
+
+            try
+            {
+                for (int i = 0; i < configuration.VideoCompression.ParametersPriorityList.Length; i++)
+                {
+                    if (!videoParams[i])
+                    {
+                        videoParams[i] = true;
+                        return (i, configuration.VideoCompression.ParametersPriorityList[i]);
+                    }
+                }
+
+                // always return last one if all else is taken
+                return (
+                    configuration.VideoCompression.ParametersPriorityList.Length - 1,
+                    configuration.VideoCompression.ParametersPriorityList.Last());
+            }
+            finally
+            {
+                videoParamsSemaphore.Release();
+            }
+        }
+
+        async Task ReleaseVideoParameters(int index)
+        {
+            await videoParamsSemaphore.WaitAsync();
+
+            try
+            {
+                videoParams[index] = false;
+            }
+            finally
+            {
+                videoParamsSemaphore.Release();
+            }
+        }
+
+        async Task<(int Index, string Parameters)> TakeImageParameters()
+        {
+            // pick the first parameters available - if last, take last one.
+
+            await imageParamsSemaphore.WaitAsync();
+
+            try
+            {
+                for (int i = 0; i < configuration.ImageCompression.ParametersPriorityList.Length; i++)
+                {
+                    if (!imageParams[i])
+                    {
+                        imageParams[i] = true;
+                        return (i, configuration.ImageCompression.ParametersPriorityList[i]);
+                    }
+                }
+
+                // always return last one if all else is taken
+                return (
+                    configuration.ImageCompression.ParametersPriorityList.Length - 1,
+                    configuration.ImageCompression.ParametersPriorityList.Last());
+            }
+            finally
+            {
+                imageParamsSemaphore.Release();
+            }
+        }
+
+        async Task ReleaseImageParameters(int index)
+        {
+            await imageParamsSemaphore.WaitAsync();
+
+            try
+            {
+                imageParams[index] = false;
+            }
+            finally
+            {
+                imageParamsSemaphore.Release();
+            }
+        }
+
     }
 }

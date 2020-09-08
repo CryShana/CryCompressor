@@ -48,8 +48,6 @@ namespace CryCompressor
         public bool CompressVideos { get; init; } = true;
         public long MinSize { get; init; } = 1000 * 100; // 100kB
         public int MaxConcurrentWorkers { get; init; } = 1;
-        public bool InterlaceChecking { get; init; } = true;
-        public string InterlaceFilter { get; init; } = "-vf yadif";
         public string[] ParametersPriorityList { get; init; } = new string[] {
             // first concurrent worker will use this
             "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a copy", // cq goes from 0 - 51 (worst)
