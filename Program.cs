@@ -39,7 +39,7 @@ namespace CryCompressor
                 c.Start();
 
                 sw.Stop();
-                WriteLine($"Done [{sw.Elapsed.TotalMilliseconds.ToTimeString()}]");
+                WriteInfo($"Done ({sw.Elapsed.TotalMilliseconds.ToTimeString()})");
             }
             catch (JsonException)
             {

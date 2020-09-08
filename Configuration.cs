@@ -17,6 +17,9 @@ namespace CryCompressor
         public string[] ImageExtensions { get; init; } = new string[] {
             "jpg", "jpeg", "png", "bmp"
         };
+        public string[] IgnoredVideoCodecs { get; init; } = new string[] {
+            "h265", "hevc", "vp9", "av1"
+        };
 
         public static Configuration Load(string path) => JsonSerializer.Deserialize<Configuration>(File.ReadAllBytes(path), new JsonSerializerOptions
         {
