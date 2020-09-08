@@ -48,11 +48,21 @@ namespace CryCompressor
         public bool CompressVideos { get; init; } = true;
         public long MinSize { get; init; } = 1000 * 100; // 100kB
         public int MaxConcurrentWorkers { get; init; } = 1;
-        public string[] ParametersPriorityList { get; init; } = new string[] {
+
+        public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
             // first concurrent worker will use this
-            "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a copy", // cq goes from 0 - 51 (worst)
+            new ParametersObject
+            {
+                Parameters = "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a copy", // cq goes from 0 - 51 (worst)
+                Extension = "mp4"
+            },
+            
             // second concurrent worker will use this (and all others)
-            "-c:v libx265 -crf 26 -preset medium -c:a copy" // crf goes from 0 - 51 (worst)
+            new ParametersObject
+            {
+                Parameters = "-c:v libx265 -crf 26 -preset medium -c:a copy", // crf goes from 0 - 51 (worst)
+                Extension = "mp4"
+            }
         };
     }
 
@@ -61,8 +71,19 @@ namespace CryCompressor
         public bool CompressImages { get; init; } = true;
         public long MinSize { get; init; } = 1000 * 30; // 30kB
         public int MaxConcurrentWorkers { get; init; } = 2;
-        public string[] ParametersPriorityList { get; init; } = new string[] {
-            "-c:v libwebp -qscale 90"
+
+        public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
+            new ParametersObject
+            {
+                Parameters = "-c:v libwebp -qscale 90",
+                Extension = "webp"
+            }
         };
+    }
+
+    public class ParametersObject
+    {
+        public string Parameters { get; set; }
+        public string Extension { get; set; }
     }
 }

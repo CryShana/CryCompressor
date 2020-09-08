@@ -67,8 +67,8 @@ namespace CryCompressor
             _ = Task.Run(Logger, tkn);
 
             // Start filtering files and queueing them for work
-            var vidExtensions = configuration.VideoExtensions.Select(x => "." + x.ToLower().Trim()).ToArray();
-            var imgExtensions = configuration.ImageExtensions.Select(x => "." + x.ToLower().Trim()).ToArray();
+            var vidExtensions = configuration.VideoExtensions.Select(x => "." + x.ToLower().Trim().GetExtensionWithoutDot()).ToArray();
+            var imgExtensions = configuration.ImageExtensions.Select(x => "." + x.ToLower().Trim().GetExtensionWithoutDot()).ToArray();
             foreach (var f in files)
             {
                 var extension = Path.GetExtension(f).ToLower().Trim();
@@ -104,11 +104,13 @@ namespace CryCompressor
                 if (errorQueue.TryDequeue(out string err))
                 {
                     WriteEmpty();
+                    Console.Write("\r");
                     WriteError(err);
                 }
                 if (warnQueue.TryDequeue(out string wrn))
                 {
                     WriteEmpty();
+                    Console.Write("\r");
                     WriteInfo(wrn);
                 }
 
@@ -127,7 +129,7 @@ namespace CryCompressor
             taskState.SetResult();
         }
 
-        string GetPath(string filename)
+        string GetPath(string filename, string extension = null)
         {
             var directory = Path.GetRelativePath(configuration.InputDirectory, Path.GetDirectoryName(filename));
             if (directory == ".") directory = "";
@@ -135,7 +137,8 @@ namespace CryCompressor
             var destinationDirectory = Path.Combine(configuration.OutputDirectory, directory);
             Directory.CreateDirectory(destinationDirectory);
 
-            var destination = Path.Combine(destinationDirectory, Path.GetFileName(filename));
+            if (extension == null) extension = Path.GetExtension(filename);
+            var destination = Path.Combine(destinationDirectory, Path.GetFileNameWithoutExtension(filename) + "." + extension.GetExtensionWithoutDot());
 
             return destination;
         }
@@ -148,11 +151,11 @@ namespace CryCompressor
             {
                 if (videoQueue.TryDequeue(out string f))
                 {
-                    var dst = GetPath(f);
                     Process p = null;
 
                     // choose parameters based on priority list
                     var (pIndex, parameters) = await TakeVideoParameters();
+                    var dst = GetPath(f, parameters.Extension);
 
                     try
                     {       
@@ -170,7 +173,7 @@ namespace CryCompressor
 
                         reader.Dispose();
 
-                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters} \"{dst}\"");
+                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters.Parameters} \"{dst}\"");
                         await p.WaitForExitAsync(tkn);
                         var code = p.ExitCode;
 
@@ -214,11 +217,12 @@ namespace CryCompressor
             {
                 if (imageQueue.TryDequeue(out string f))
                 {
-                    var dst = GetPath(f);
                     Process p = null;
 
                     // choose parameters based on priority list
                     var (pIndex, parameters) = await TakeImageParameters();
+
+                    var dst = GetPath(f, parameters.Extension);
 
                     try
                     {
@@ -229,7 +233,7 @@ namespace CryCompressor
 
                         reader.Dispose();
 
-                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters} \"{dst}\"");
+                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters.Parameters} \"{dst}\"");
                         await p.WaitForExitAsync(tkn);
                         var code = p.ExitCode;
 
@@ -293,7 +297,7 @@ namespace CryCompressor
             }
         }
 
-        async Task<(int Index, string Parameters)> TakeVideoParameters()
+        async Task<(int Index, ParametersObject Parameters)> TakeVideoParameters()
         {
             // pick the first parameters available - if last, take last one.
 
@@ -335,7 +339,7 @@ namespace CryCompressor
             }
         }
 
-        async Task<(int Index, string Parameters)> TakeImageParameters()
+        async Task<(int Index, ParametersObject Parameters)> TakeImageParameters()
         {
             // pick the first parameters available - if last, take last one.
 
