@@ -53,14 +53,14 @@ namespace CryCompressor
             // first concurrent worker will use this
             new ParametersObject
             {
-                Parameters = "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a copy", // cq goes from 0 - 51 (worst)
+                Parameters = "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4", // cq goes from 0 - 51 (worst)
                 Extension = "mp4"
             },
             
             // second concurrent worker will use this (and all others)
             new ParametersObject
             {
-                Parameters = "-c:v libx265 -crf 26 -preset medium -c:a copy", // crf goes from 0 - 51 (worst)
+                Parameters = "-c:v libx265 -crf 26 -preset medium -c:a aac -b:a 256k -f mp4", // crf goes from 0 - 51 (worst)
                 Extension = "mp4"
             }
         };

@@ -158,7 +158,7 @@ namespace CryCompressor
                     var dst = GetPath(f, parameters.Extension);
 
                     try
-                    {       
+                    {
                         // convert
                         using var reader = new VideoReader(f);
 
@@ -173,7 +173,14 @@ namespace CryCompressor
 
                         reader.Dispose();
 
-                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters.Parameters} \"{dst}\"");
+                        string output = "";
+                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-hide_banner -i \"{f}\" {parameters.Parameters} \"{dst}\" -y");
+                        p.ErrorDataReceived += (s, data) =>
+                        {
+                            if (data.Data == null) return;
+                            output += data.Data + "\n";
+                        };
+
                         await p.WaitForExitAsync(tkn);
                         var code = p.ExitCode;
 
@@ -183,7 +190,7 @@ namespace CryCompressor
                         {
                             File.Delete(dst);
                             File.Copy(f, dst, true);
-                            throw new Exception($"Video conversion failed. (Code: {code})");
+                            throw new Exception($"Video conversion failed. (Code: {code}). Output:\n{output}");
                         }
                         if (configuration.DeleteResultIfBigger && result.Length > new FileInfo(f).Length)
                         {
@@ -233,7 +240,14 @@ namespace CryCompressor
 
                         reader.Dispose();
 
-                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-i \"{f}\" {parameters.Parameters} \"{dst}\"");
+                        string output = "";
+                        p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-hide_banner -i \"{f}\" {parameters.Parameters} \"{dst}\" -y");
+                        p.ErrorDataReceived += (s, data) =>
+                        {
+                            if (data.Data == null) return;
+                            output += data.Data + "\n";
+                        };
+
                         await p.WaitForExitAsync(tkn);
                         var code = p.ExitCode;
 
@@ -243,7 +257,7 @@ namespace CryCompressor
                         {
                             File.Delete(dst);
                             File.Copy(f, dst, true);
-                            throw new Exception($"Image conversion failed. (Code: {code})");
+                            throw new Exception($"Image conversion failed. (Code: {code}). Output:\n{output}");
                         }
                         if (configuration.DeleteResultIfBigger && result.Length > new FileInfo(f).Length)
                         {
@@ -297,6 +311,7 @@ namespace CryCompressor
             }
         }
 
+        #region Getting Parameters
         async Task<(int Index, ParametersObject Parameters)> TakeVideoParameters()
         {
             // pick the first parameters available - if last, take last one.
@@ -380,6 +395,6 @@ namespace CryCompressor
                 imageParamsSemaphore.Release();
             }
         }
-
+        #endregion
     }
 }

@@ -16,7 +16,7 @@ namespace CryCompressor
         {
             if (string.IsNullOrEmpty(extension)) return extension;
 
-            if (extension.StartsWith('.')) return extension.Substring(1);
+            if (extension.StartsWith('.')) return extension[1..];
 
             return extension;
         }
