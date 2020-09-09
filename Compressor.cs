@@ -129,16 +129,28 @@ namespace CryCompressor
             taskState.SetResult();
         }
 
+        readonly static Random rng = new();
         string GetPath(string filename, string extension = null)
         {
+            extension = extension?.GetExtensionWithoutDot();
+
             var directory = Path.GetRelativePath(configuration.InputDirectory, Path.GetDirectoryName(filename));
             if (directory == ".") directory = "";
 
             var destinationDirectory = Path.Combine(configuration.OutputDirectory, directory);
             Directory.CreateDirectory(destinationDirectory);
 
-            if (extension == null) extension = Path.GetExtension(filename);
-            var destination = Path.Combine(destinationDirectory, Path.GetFileNameWithoutExtension(filename) + "." + extension.GetExtensionWithoutDot());
+            var fileNameNoext = Path.GetFileNameWithoutExtension(filename);
+            var fileExtension = Path.GetExtension(filename).GetExtensionWithoutDot();
+            if (extension == null) extension = fileExtension;
+            else
+            {
+                // if defined extension is different from original, add a unique number to filename to avoid 
+                // very rare cases of multiple files with same names but different extensions merging into one
+                if (fileExtension.ToLower() != extension.ToLower()) fileNameNoext += $"({rng.Next(0, 1000)}-{fileExtension})"; 
+            }
+
+            var destination = Path.Combine(destinationDirectory, fileNameNoext + "." + extension);
 
             return destination;
         }
