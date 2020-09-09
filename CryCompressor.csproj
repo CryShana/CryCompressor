@@ -3,6 +3,12 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+    <IncludeNativeLibrariesInSingleFile>true</IncludeNativeLibrariesInSingleFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CryMediaAPI" Version="1.0.9"/>
   </ItemGroup>

@@ -201,6 +201,9 @@ namespace CryCompressor
                     }
                     catch (Exception ex)
                     {
+                        // in rare case it hasn't been copied over, copy it
+                        if (!File.Exists(dst)) File.Copy(f, dst, true);
+
                         errorQueue.Enqueue($"Failed to convert video '{f}': {ex.Message}");
                     }
                     finally
@@ -268,6 +271,9 @@ namespace CryCompressor
                     }
                     catch (Exception ex)
                     {
+                        // in rare case it hasn't been copied over, copy it
+                        if (!File.Exists(dst)) File.Copy(f, dst, true);
+
                         errorQueue.Enqueue($"Failed to convert image '{f}': {ex.Message}");
                     }
                     finally
