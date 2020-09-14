@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
@@ -7,9 +7,10 @@
   <PropertyGroup>
     <PublishTrimmed>true</PublishTrimmed>
     <IncludeNativeLibrariesInSingleFile>true</IncludeNativeLibrariesInSingleFile>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CryMediaAPI" Version="1.0.9"/>
+    <PackageReference Include="CryMediaAPI" Version="1.1.1" />
   </ItemGroup>
 </Project>
