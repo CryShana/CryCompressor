@@ -10,6 +10,7 @@ namespace CryCompressor
 
         public VideoConfiguration VideoCompression { get; init; } = new VideoConfiguration();
         public ImageConfiguration ImageCompression { get; init; } = new ImageConfiguration();
+        public AudioConfiguration AudioCompression { get; init; } = new AudioConfiguration();
 
         public string[] VideoExtensions { get; init; } = new string[] {
             "mp4", "mpg", "mts", "mov", "avi", "wmv", "webm", "flv", "mpeg", "mpv"
@@ -17,6 +18,10 @@ namespace CryCompressor
         public string[] ImageExtensions { get; init; } = new string[] {
             "jpg", "jpeg", "png", "bmp"
         };
+        public string[] AudioExtensions { get; init; } = new string[] {
+            "wav", "ogg", "oga", "wma", "mp3", "aac", "flac", "m4a"
+        };
+
         public string[] IgnoredVideoCodecs { get; init; } = new string[] {
             "h265", "hevc", "vp9", "av1"
         };
@@ -77,6 +82,21 @@ namespace CryCompressor
             {
                 Parameters = "-c:v libwebp -qscale 90",
                 Extension = "webp"
+            }
+        };
+    }
+
+    public class AudioConfiguration
+    {
+        public bool CompressAudio { get; init; } = true;
+        public long MinSize { get; init; } = 1000 * 30; // 30kB
+        public int MaxConcurrentWorkers { get; init; } = 1;
+
+        public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
+            new ParametersObject
+            {
+                Parameters = "-c:a libopus -b:a 320k",
+                Extension = "ogg"
             }
         };
     }
