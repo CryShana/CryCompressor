@@ -41,50 +41,47 @@ Assuming we have a system with a powerful GPU and CPU, we could allocate one wor
 Example configuration:
 ```jsonc
 {
-  "InputDirectory": "C:\\inputDir",
-  "OutputDirectory": "C:\\outputDir,
-  
-  // Video compression configuration
+  "InputDirectory": "path/to/input/dir",
+  "OutputDirectory": "path/to/output/dir",
   "VideoCompression": {
     "CompressVideos": true,
-    
-    // files below this size will be ignored (given in bytes)
     "MinSize": 100000,
-    
-    // We will be using 3 concurrent workers
-    "MaxConcurrentWorkers": 3,
-    
+    "MaxConcurrentWorkers": 1,
     "ParametersPriorityList": [
-      // the first worker will take these parameters
       {
         "Parameters": "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4",
         "Extension": "mp4"
       },
-      // other workers will take this
       {
         "Parameters": "-c:v libx265 -crf 26 -preset medium -c:a aac -b:a 256k -f mp4",
         "Extension": "mp4"
       }
     ]
   },
-  
-  // Image compression configuration
   "ImageCompression": {
     "CompressImages": true,
     "MinSize": 30000,
-    "MaxConcurrentWorkers": 3,
+    "MaxConcurrentWorkers": 2,
     "ParametersPriorityList": [
-      // all workers will be using these parameters
       {
         "Parameters": "-c:v libwebp -qscale 90",
         "Extension": "webp"
       }
     ]
   },
-  
-  // Which extensions to treat as video files
+  "AudioCompression": {
+    "CompressAudio": true,
+    "MinSize": 30000,
+    "MaxConcurrentWorkers": 2,
+    "ParametersPriorityList": [
+      {
+        "Parameters": "-c:a libopus -b:a 320k",
+        "Extension": "ogg"
+      }
+    ]
+  },
   "VideoExtensions": [
-    ".mp4",
+    "mp4",
     "mpg",
     "mts",
     "mov",
@@ -95,24 +92,28 @@ Example configuration:
     "mpeg",
     "mpv"
   ],
-  
-  // Which extensions to treat as image files
   "ImageExtensions": [
     "jpg",
     "jpeg",
     "png",
     "bmp"
   ],
-  
-  // Which video codecs to ignore
+  "AudioExtensions": [
+    "wav",
+    "ogg",
+    "oga",
+    "wma",
+    "mp3",
+    "aac",
+    "flac",
+    "m4a"
+  ],
   "IgnoredVideoCodecs": [
     "h265",
     "hevc",
     "vp9",
     "av1"
   ],
-  
-  // If the resulting compressed file turns out to be larger than the original, delete it and just copy the original over
   "DeleteResultIfBigger": true
 }
 ```
