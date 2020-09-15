@@ -47,6 +47,7 @@ Example configuration:
     "CompressVideos": true,
     "MinSize": 100000,
     "MaxConcurrentWorkers": 1,
+    "RandomSuffixOnDifferentExtension": true,
     "ParametersPriorityList": [
       {
         "Parameters": "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4",
@@ -61,7 +62,8 @@ Example configuration:
   "ImageCompression": {
     "CompressImages": true,
     "MinSize": 30000,
-    "MaxConcurrentWorkers": 2,
+    "MaxConcurrentWorkers": 4,
+    "RandomSuffixOnDifferentExtension": true,
     "ParametersPriorityList": [
       {
         "Parameters": "-c:v libwebp -qscale 90",
@@ -72,10 +74,11 @@ Example configuration:
   "AudioCompression": {
     "CompressAudio": true,
     "MinSize": 30000,
-    "MaxConcurrentWorkers": 2,
+    "MaxConcurrentWorkers": 4,
+    "RandomSuffixOnDifferentExtension": true,
     "ParametersPriorityList": [
       {
-        "Parameters": "-c:a libopus -b:a 320k",
+        "Parameters": "-c:a libopus -b:a 256k -vn",
         "Extension": "ogg"
       }
     ]
