@@ -5,12 +5,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PublishTrimmed>true</PublishTrimmed>
-    <IncludeNativeLibrariesInSingleFile>true</IncludeNativeLibrariesInSingleFile>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CryMediaAPI" Version="1.1.1" />
+    <RdXmlFile Include="rd.xml" />
+    <PackageReference Include="CryMediaAPI" Version="1.1.2" />
+    <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="1.0.0-alpha-*" />
   </ItemGroup>
 </Project>

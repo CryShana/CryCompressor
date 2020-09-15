@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Directives>
+    <Application>
+        <Assembly Name="System.Text.Json" Dynamic="Required All">
+            <Type Name="System.Text.Json.JsonPropertyInfoNotNullable`4[[CryCompressor.Configuration,CryCompressor],[System.Boolean,mscorlib],[System.Boolean,mscorlib],[System.Boolean,mscorlib]]" Dynamic="Required All" />
+            <Type Name="System.Text.Json.JsonPropertyInfoNotNullable`4[[CryCompressor.VideoConfiguration,CryCompressor],[System.Int32,mscorlib],[System.Int32,mscorlib],[System.Int32,mscorlib]]" Dynamic="Required All" />
+            <Type Name="System.Text.Json.JsonPropertyInfoNotNullable`4[[CryCompressor.VideoConfiguration,CryCompressor],[System.Int64,mscorlib],[System.Int64,mscorlib],[System.Int64,mscorlib]]" Dynamic="Required All" />
+
+            <Type Name="System.Text.Json.JsonPropertyInfoNotNullable`4[[CryMediaAPI.Video.Models.VideoMetadata,CryMediaAPI],[System.Double,mscorlib],[System.Double,mscorlib],[System.Double,mscorlib]]" Dynamic="Required All" />
+            <Type Name="System.Text.Json.JsonPropertyInfoNullable`2[[CryMediaAPI.BaseClasses.MediaStream,CryMediaAPI],[System.Int32,mscorlib]]" Dynamic="Required All" />
+            <Type Name="System.Text.Json.JsonPropertyInfoNullable`2[[CryMediaAPI.BaseClasses.MediaStream,CryMediaAPI],[System.Int64,mscorlib]]" Dynamic="Required All" />
+            <Type Name="System.Text.Json.JsonPropertyInfoNotNullable`4[[CryMediaAPI.BaseClasses.StreamTags,CryMediaAPI],[System.DateTimeOffset,mscorlib],[System.DateTimeOffset,mscorlib],[System.DateTimeOffset,mscorlib]]" Dynamic="Required All" />
+        </Assembly>
+    </Application>
+</Directives>

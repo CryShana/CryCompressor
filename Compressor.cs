@@ -22,7 +22,7 @@ namespace CryCompressor
         int filesProcessed;
         bool started, queuedone;
         readonly CancellationToken tkn;
-        TaskCompletionSource taskState;
+        TaskCompletionSource<bool> taskState;
 
         readonly ConcurrentQueue<string> fileQueue = new ConcurrentQueue<string>();
         readonly ConcurrentQueue<string> videoQueue = new ConcurrentQueue<string>();
@@ -54,7 +54,7 @@ namespace CryCompressor
             if (started) throw new InvalidOperationException("Compressor already started!");
             started = true;
 
-            taskState = new TaskCompletionSource();
+            taskState = new TaskCompletionSource<bool>();
 
             // get all files
             WriteInfo("Getting files");
@@ -137,10 +137,10 @@ namespace CryCompressor
                 await Task.Delay(50);
             }
 
-            taskState.SetResult();
+            taskState.SetResult(true);
         }
 
-        readonly static Random rng = new();
+        readonly static Random rng = new Random();
         (string destination_unchanged, string destination_modified) GetPath(string filename, string extension = null, bool generateSuffix = true)
         {
             extension = extension?.GetExtensionWithoutDot();
@@ -205,6 +205,7 @@ namespace CryCompressor
                         };
 
                         await p.WaitForExitAsync(tkn);
+
                         var code = p.ExitCode;
 
                         // validate result

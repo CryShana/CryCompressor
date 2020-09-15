@@ -5,24 +5,24 @@ namespace CryCompressor
 {
     public class Configuration
     {
-        public string InputDirectory { get; init; }
-        public string OutputDirectory { get; init; }
+        public string InputDirectory { get; set; }
+        public string OutputDirectory { get; set; }
 
-        public VideoConfiguration VideoCompression { get; init; } = new VideoConfiguration();
-        public ImageConfiguration ImageCompression { get; init; } = new ImageConfiguration();
-        public AudioConfiguration AudioCompression { get; init; } = new AudioConfiguration();
+        public VideoConfiguration VideoCompression { get; set; } = new VideoConfiguration();
+        public ImageConfiguration ImageCompression { get; set; } = new ImageConfiguration();
+        public AudioConfiguration AudioCompression { get; set; } = new AudioConfiguration();
 
-        public string[] VideoExtensions { get; init; } = new string[] {
+        public string[] VideoExtensions { get; set; } = new string[] {
             "mp4", "mpg", "mts", "mov", "avi", "wmv", "webm", "flv", "mpeg", "mpv"
         };
-        public string[] ImageExtensions { get; init; } = new string[] {
+        public string[] ImageExtensions { get; set; } = new string[] {
             "jpg", "jpeg", "png", "bmp"
         };
-        public string[] AudioExtensions { get; init; } = new string[] {
+        public string[] AudioExtensions { get; set; } = new string[] {
             "wav", "ogg", "oga", "wma", "mp3", "aac", "flac", "m4a"
         };
 
-        public string[] IgnoredVideoCodecs { get; init; } = new string[] {
+        public string[] IgnoredVideoCodecs { get; set; } = new string[] {
             "h265", "hevc", "vp9", "av1"
         };
 
@@ -50,12 +50,12 @@ namespace CryCompressor
 
     public class VideoConfiguration
     {
-        public bool CompressVideos { get; init; } = true;
-        public long MinSize { get; init; } = 1000 * 100;
-        public int MaxConcurrentWorkers { get; init; } = 1;
+        public bool CompressVideos { get; set; } = true;
+        public long MinSize { get; set; } = 1000 * 100;
+        public int MaxConcurrentWorkers { get; set; } = 1;
         public bool RandomSuffixOnDifferentExtension { get; set; } = true;      
 
-        public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
+        public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
             // first concurrent worker will use this
             new ParametersObject
             {
@@ -74,12 +74,12 @@ namespace CryCompressor
 
     public class ImageConfiguration
     {
-        public bool CompressImages { get; init; } = true;
-        public long MinSize { get; init; } = 1000 * 30;
-        public int MaxConcurrentWorkers { get; init; } = 4;
+        public bool CompressImages { get; set; } = true;
+        public long MinSize { get; set; } = 1000 * 30;
+        public int MaxConcurrentWorkers { get; set; } = 4;
         public bool RandomSuffixOnDifferentExtension { get; set; } = true;
 
-        public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
+        public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
             new ParametersObject
             {
                 Parameters = "-c:v libwebp -qscale 83",
@@ -90,15 +90,15 @@ namespace CryCompressor
 
     public class AudioConfiguration
     {
-        public bool CompressAudio { get; init; } = true;
-        public long MinSize { get; init; } = 1000 * 30;
-        public int MaxConcurrentWorkers { get; init; } = 4;
+        public bool CompressAudio { get; set; } = true;
+        public long MinSize { get; set; } = 1000 * 30;
+        public int MaxConcurrentWorkers { get; set; } = 4;
         public bool RandomSuffixOnDifferentExtension { get; set; } = true;  
 
-        public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
+        public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
             new ParametersObject
             {
-                Parameters = "-c:a libopus -b:a 320k -vn",
+                Parameters = "-c:a libopus -b:a 256k -vn",
                 Extension = "ogg"
             }
         };
