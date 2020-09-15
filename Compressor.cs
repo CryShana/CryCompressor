@@ -141,7 +141,7 @@ namespace CryCompressor
         }
 
         readonly static Random rng = new();
-        (string destination_unchanged, string destination_modified) GetPath(string filename, string extension = null)
+        (string destination_unchanged, string destination_modified) GetPath(string filename, string extension = null, bool generateSuffix = true)
         {
             extension = extension?.GetExtensionWithoutDot();
 
@@ -153,13 +153,12 @@ namespace CryCompressor
 
             var fileNameNoext = Path.GetFileNameWithoutExtension(filename);
             var fileExtension = Path.GetExtension(filename).GetExtensionWithoutDot();
+
             if (extension == null) extension = fileExtension;
-            else
-            {
-                // if defined extension is different from original, add a unique number to filename to avoid 
-                // very rare cases of multiple files with same names but different extensions merging into one
-                if (fileExtension.ToLower() != extension.ToLower()) fileNameNoext += $"({rng.Next(0, 1000)}-{fileExtension})"; 
-            }
+
+            // if defined extension is different from original, add a unique suffix to avoid
+            // rare cases of multiple files with same names but different extensions merging into one
+            if (generateSuffix && fileExtension.ToLower() != extension.ToLower()) fileNameNoext += $"({rng.Next(0, 1000)}-{fileExtension})";
 
             var destination_unchanged = Path.Combine(destinationDirectory, Path.GetFileName(filename));
             var destination_modified = Path.Combine(destinationDirectory, fileNameNoext + "." + extension);
@@ -179,7 +178,7 @@ namespace CryCompressor
 
                     // choose parameters based on priority list
                     var (pIndex, parameters) = await TakeVideoParameters();
-                    var (dst_orig, dst) = GetPath(f, parameters.Extension);
+                    var (dst_orig, dst) = GetPath(f, parameters.Extension, configuration.VideoCompression.RandomSuffixOnDifferentExtension);
 
                     string output = "";
                     try
@@ -256,7 +255,7 @@ namespace CryCompressor
                     // choose parameters based on priority list
                     var (pIndex, parameters) = await TakeImageParameters();
 
-                    var (dst_orig, dst) = GetPath(f, parameters.Extension);
+                    var (dst_orig, dst) = GetPath(f, parameters.Extension, configuration.ImageCompression.RandomSuffixOnDifferentExtension);
 
                     string output = "";
                     try
@@ -326,7 +325,7 @@ namespace CryCompressor
                     // choose parameters based on priority list
                     var (pIndex, parameters) = await TakeAudioParameters();
 
-                    var (dst_orig, dst) = GetPath(f, parameters.Extension);
+                    var (dst_orig, dst) = GetPath(f, parameters.Extension, configuration.AudioCompression.RandomSuffixOnDifferentExtension);
 
                     string output = "";
                     try
@@ -337,7 +336,7 @@ namespace CryCompressor
                         await reader.LoadMetadataAsync();
 
                         reader.Dispose();
-                        
+
                         p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-hide_banner -i \"{f}\" {parameters.Parameters} \"{dst}\" -y");
                         p.ErrorDataReceived += (s, data) =>
                         {

@@ -51,8 +51,9 @@ namespace CryCompressor
     public class VideoConfiguration
     {
         public bool CompressVideos { get; init; } = true;
-        public long MinSize { get; init; } = 1000 * 100; // 100kB
+        public long MinSize { get; init; } = 1000 * 100;
         public int MaxConcurrentWorkers { get; init; } = 1;
+        public bool RandomSuffixOnDifferentExtension { get; set; } = true;      
 
         public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
             // first concurrent worker will use this
@@ -74,13 +75,14 @@ namespace CryCompressor
     public class ImageConfiguration
     {
         public bool CompressImages { get; init; } = true;
-        public long MinSize { get; init; } = 1000 * 30; // 30kB
-        public int MaxConcurrentWorkers { get; init; } = 2;
+        public long MinSize { get; init; } = 1000 * 30;
+        public int MaxConcurrentWorkers { get; init; } = 4;
+        public bool RandomSuffixOnDifferentExtension { get; set; } = true;
 
         public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
             new ParametersObject
             {
-                Parameters = "-c:v libwebp -qscale 90",
+                Parameters = "-c:v libwebp -qscale 83",
                 Extension = "webp"
             }
         };
@@ -89,13 +91,14 @@ namespace CryCompressor
     public class AudioConfiguration
     {
         public bool CompressAudio { get; init; } = true;
-        public long MinSize { get; init; } = 1000 * 30; // 30kB
-        public int MaxConcurrentWorkers { get; init; } = 1;
+        public long MinSize { get; init; } = 1000 * 30;
+        public int MaxConcurrentWorkers { get; init; } = 4;
+        public bool RandomSuffixOnDifferentExtension { get; set; } = true;  
 
         public ParametersObject[] ParametersPriorityList { get; init; } = new ParametersObject[] {
             new ParametersObject
             {
-                Parameters = "-c:a libopus -b:a 320k",
+                Parameters = "-c:a libopus -b:a 320k -vn",
                 Extension = "ogg"
             }
         };
