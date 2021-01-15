@@ -2,7 +2,7 @@
 Cross-platform CLI tool for batch compressing media files using FFmpeg.
 
 ## What is this for?
-For archiving large amounts of media files by compressing them to save space in a way that best utilizes computer's resources.
+For archiving large amounts of media files by compressing them to save space by using multiple encoders concurrently and better utilizing extra CPU/GPU resources on a system.
 
 ## How it works?
 It goes through all files inside a given input directory and attempts to compress them to the output directory while retaining the input directory structure. 
@@ -46,7 +46,7 @@ Example configuration:
   "VideoCompression": {
     "CompressVideos": true,
     "MinSize": 100000,
-    "MaxConcurrentWorkers": 1,
+    "MaxConcurrentWorkers": 3,
     "RandomSuffixOnDifferentExtension": true,
     "ParametersPriorityList": [
       {
