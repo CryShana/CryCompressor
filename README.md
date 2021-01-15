@@ -12,7 +12,7 @@ The whole process is made to be more efficient by using priority parameters list
 ```json
 "ParametersPriorityList": [
   {
-    "Parameters": "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4",
+    "Parameters": "-c:v hevc_nvenc -rc:v constqp -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4",
     "Extension": "mp4"
   },
   {
@@ -50,7 +50,7 @@ Example configuration:
     "RandomSuffixOnDifferentExtension": true,
     "ParametersPriorityList": [
       {
-        "Parameters": "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4",
+        "Parameters": "-c:v hevc_nvenc -rc:v constqp -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4",
         "Extension": "mp4"
       },
       {
