@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using static CryCompressor.ColorConsole;
+using CryMediaAPI;
 
 namespace CryCompressor
 {
@@ -39,6 +40,16 @@ namespace CryCompressor
                 if (config.VideoCompression.MaxConcurrentWorkers <= 0) throw new Exception("Video max. concurrent workers can not be 0 or less!");
                 if (config.ImageCompression.MaxConcurrentWorkers <= 0) throw new Exception("Image max. concurrent workers can not be 0 or less!");
                 if (config.AudioCompression.MaxConcurrentWorkers <= 0) throw new Exception("Image max. concurrent workers can not be 0 or less!");
+
+                try
+                {
+                    // CHECK IF FFMPEG PRESENT
+                    var encoders = FFmpegWrapper.GetEncoders();
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Failed to use FFmpeg! Make sure it's accessible! " + e.Message);
+                }
 
                 // HANDLE CANCEL EVENT
                 var csc = new CancellationTokenSource();

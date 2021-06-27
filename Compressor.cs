@@ -263,9 +263,7 @@ namespace CryCompressor
                     {
                         // convert
                         using var reader = new VideoReader(f);
-
                         await reader.LoadMetadataAsync();
-
                         reader.Dispose();
 
                         p = FFmpegWrapper.ExecuteCommand("ffmpeg", $"-hide_banner -i \"{f}\" {parameters.Parameters} \"{dst}\" -y");
