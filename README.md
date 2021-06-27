@@ -4,6 +4,19 @@ Cross-platform CLI tool for batch compressing media files using FFmpeg.
 ## What is this for?
 For archiving large amounts of media files by compressing them to save space by using multiple encoders concurrently and better utilizing extra CPU/GPU resources on a system.
 
+## Requirements
+- FFmpeg
+
+## Usage
+This program will try to load the configuration from `compressor-config.jsonc` file. If no such file is a found, a new one is generated automatically.
+
+Simply run the program to generate a missing configuration file or to start compressing automatically if a valid file already exists:
+```bash
+./CryCompressor
+```
+
+Adjust the configuration file as needed and simply run the program again when ready.
+
 ## How it works?
 It goes through all files inside a given input directory and attempts to compress them to the output directory while retaining the input directory structure. 
 If compression fails, the file is simply copied over and the error is logged.
@@ -26,14 +39,6 @@ The first worker will take the first one, the second worker the second one, any 
 
 By doing this, we can utilize both GPU and CPU at the same time. In the above example, 
 one worker will be using the NVENC encoder that uses the GPU for encoding, while other workers will use the CPU-based encoder.
-
-## Usage
-This program will look for a `compressor-config.jsonc` configuration file and attempt to load it. If no such file is a found, a new one is generated automatically from a template.
-
-Adjust the configuration as needed and simply run the program again when ready.
-
-## Requirements
-- FFmpeg
 
 ## Example configuration
 Assuming we have a system with a powerful GPU and CPU, we could allocate one worker to GPU, and another 2 workers to the CPU.
