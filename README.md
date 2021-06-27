@@ -6,6 +6,7 @@ For archiving large amounts of media files by compressing them to save space by 
 
 ## Requirements
 - FFmpeg
+- FFprobe
 
 ## Usage
 This program will try to load the configuration from `compressor-config.jsonc` file. If no such file is a found, a new one is generated automatically.
