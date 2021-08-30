@@ -59,7 +59,7 @@ namespace CryCompressor
             // first concurrent worker will use this
             new ParametersObject
             {
-                Parameters = "-c:v hevc_nvenc -rc:v vbr_hq -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4", // cq goes from 0 - 51 (worst)
+                Parameters = "-c:v hevc_nvenc -rc:v constqp -cq:v 26 -preset slow -c:a aac -b:a 256k -f mp4", // cq goes from 0 - 51 (worst)
                 Extension = "mp4"
             },
             

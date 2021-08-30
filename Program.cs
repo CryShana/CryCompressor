@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Threading;
+﻿using CryMediaAPI;
+
 using System.Text.Json;
 using System.Diagnostics;
-using System.Threading.Tasks;
+
 using static CryCompressor.ColorConsole;
-using CryMediaAPI;
 
 namespace CryCompressor
 {
