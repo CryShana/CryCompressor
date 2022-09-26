@@ -1,61 +1,61 @@
-using System.Text.Json;
 using System.IO;
+using System.Text.Json;
 
-namespace CryCompressor
+namespace CryCompressor;
+
+using System.Text.Json.Serialization;
+
+// prepare for source generation
+[JsonSourceGenerationOptions(WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.Never)]
+[JsonSerializable(typeof(Configuration))]
+internal partial class SourceGenerationContext : JsonSerializerContext
 {
-    public class Configuration
-    {
-        public string InputDirectory { get; set; }
-        public string OutputDirectory { get; set; }
+}
 
-        public VideoConfiguration VideoCompression { get; set; } = new VideoConfiguration();
-        public ImageConfiguration ImageCompression { get; set; } = new ImageConfiguration();
-        public AudioConfiguration AudioCompression { get; set; } = new AudioConfiguration();
+public class Configuration
+{
+    public string InputDirectory { get; set; }
+    public string OutputDirectory { get; set; }
 
-        public string[] VideoExtensions { get; set; } = new string[] {
+    public VideoConfiguration VideoCompression { get; set; } = new VideoConfiguration();
+    public ImageConfiguration ImageCompression { get; set; } = new ImageConfiguration();
+    public AudioConfiguration AudioCompression { get; set; } = new AudioConfiguration();
+
+    public string[] VideoExtensions { get; set; } = new string[] {
             "mp4", "mpg", "mts", "mov", "avi", "wmv", "webm", "flv", "mpeg", "mpv"
         };
-        public string[] ImageExtensions { get; set; } = new string[] {
+    public string[] ImageExtensions { get; set; } = new string[] {
             "jpg", "jpeg", "png", "bmp"
         };
-        public string[] AudioExtensions { get; set; } = new string[] {
+    public string[] AudioExtensions { get; set; } = new string[] {
             "wav", "ogg", "oga", "wma", "mp3", "aac", "flac", "m4a"
         };
 
-        public string[] IgnoredVideoCodecs { get; set; } = new string[] {
+    public string[] IgnoredVideoCodecs { get; set; } = new string[] {
             "h265", "hevc", "vp9", "av1"
         };
 
-        public bool DeleteResultIfBigger { get; set; } = true;
+    public bool DeleteResultIfBigger { get; set; } = true;
 
-        public static Configuration Load(string path) => JsonSerializer.Deserialize<Configuration>(File.ReadAllBytes(path), new JsonSerializerOptions
-        {
-            AllowTrailingCommas = true,
-            ReadCommentHandling = JsonCommentHandling.Skip
-        });
+    public static Configuration Load(string path) => JsonSerializer.Deserialize<Configuration>(File.ReadAllBytes(path), SourceGenerationContext.Default.Configuration);
 
-        public static void Create(string path)
-        {
-            var config = new Configuration();
-            var json = JsonSerializer.Serialize(config, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                IgnoreNullValues = false,
-                IgnoreReadOnlyProperties = true
-            });
-
-            File.WriteAllText(path, json);
-        }
-    }
-
-    public class VideoConfiguration
+    public static void Create(string path)
     {
-        public bool CompressVideos { get; set; } = true;
-        public long MinSize { get; set; } = 1000 * 100;
-        public int MaxConcurrentWorkers { get; set; } = 1;
-        public bool RandomSuffixOnDifferentExtension { get; set; } = true;      
+        var config = new Configuration();
+        var json = JsonSerializer.Serialize(config, SourceGenerationContext.Default.Configuration);
 
-        public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
+        File.WriteAllText(path, json);
+    }
+}
+
+public class VideoConfiguration
+{
+    public bool CompressVideos { get; set; } = true;
+    public long MinSize { get; set; } = 1000 * 100;
+    public int MaxConcurrentWorkers { get; set; } = 1;
+    public bool RandomSuffixOnDifferentExtension { get; set; } = true;
+
+    public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
             // first concurrent worker will use this
             new ParametersObject
             {
@@ -70,43 +70,42 @@ namespace CryCompressor
                 Extension = "mp4"
             }
         };
-    }
+}
 
-    public class ImageConfiguration
-    {
-        public bool CompressImages { get; set; } = true;
-        public long MinSize { get; set; } = 1000 * 30;
-        public int MaxConcurrentWorkers { get; set; } = 4;
-        public bool RandomSuffixOnDifferentExtension { get; set; } = true;
+public class ImageConfiguration
+{
+    public bool CompressImages { get; set; } = true;
+    public long MinSize { get; set; } = 1000 * 30;
+    public int MaxConcurrentWorkers { get; set; } = 4;
+    public bool RandomSuffixOnDifferentExtension { get; set; } = true;
 
-        public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
+    public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
             new ParametersObject
             {
                 Parameters = "-c:v libwebp -qscale 83",
                 Extension = "webp"
             }
         };
-    }
+}
 
-    public class AudioConfiguration
-    {
-        public bool CompressAudio { get; set; } = true;
-        public long MinSize { get; set; } = 1000 * 30;
-        public int MaxConcurrentWorkers { get; set; } = 4;
-        public bool RandomSuffixOnDifferentExtension { get; set; } = true;  
+public class AudioConfiguration
+{
+    public bool CompressAudio { get; set; } = true;
+    public long MinSize { get; set; } = 1000 * 30;
+    public int MaxConcurrentWorkers { get; set; } = 4;
+    public bool RandomSuffixOnDifferentExtension { get; set; } = true;
 
-        public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
+    public ParametersObject[] ParametersPriorityList { get; set; } = new ParametersObject[] {
             new ParametersObject
             {
                 Parameters = "-c:a libopus -b:a 256k -vn",
                 Extension = "ogg"
             }
         };
-    }
+}
 
-    public class ParametersObject
-    {
-        public string Parameters { get; set; }
-        public string Extension { get; set; }
-    }
+public class ParametersObject
+{
+    public string Parameters { get; set; }
+    public string Extension { get; set; }
 }
