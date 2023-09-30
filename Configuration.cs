@@ -21,19 +21,41 @@ public class Configuration
     public ImageConfiguration ImageCompression { get; set; } = new ImageConfiguration();
     public AudioConfiguration AudioCompression { get; set; } = new AudioConfiguration();
 
-    public string[] VideoExtensions { get; set; } = new string[] {
-            "mp4", "mpg", "mts", "mov", "avi", "wmv", "webm", "flv", "mpeg", "mpv"
-        };
-    public string[] ImageExtensions { get; set; } = new string[] {
-            "jpg", "jpeg", "png", "bmp"
-        };
-    public string[] AudioExtensions { get; set; } = new string[] {
-            "wav", "ogg", "oga", "wma", "mp3", "aac", "flac", "m4a"
-        };
+    public string[] VideoExtensions { get; set; } = [
+        "mp4",
+        "mpg",
+        "mts",
+        "mov",
+        "avi",
+        "wmv",
+        "webm",
+        "flv",
+        "mpeg",
+        "mpv",
+        "mxf"
+    ];
 
-    public string[] IgnoredVideoCodecs { get; set; } = new string[] {
-            "h265", "hevc", "vp9", "av1"
-        };
+    public string[] ImageExtensions { get; set; } = [
+        "jpg",
+        "jpeg",
+        "png",
+        "bmp"
+    ];
+
+    public string[] AudioExtensions { get; set; } = [
+        "wav",
+        "ogg",
+        "oga",
+        "wma",
+        "mp3",
+        "aac",
+        "flac",
+        "m4a"
+    ];
+
+    public string[] IgnoredVideoCodecs { get; set; } = [
+        "av1"
+    ];
 
     public bool DeleteResultIfBigger { get; set; } = true;
 

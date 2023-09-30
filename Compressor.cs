@@ -141,7 +141,7 @@ public class Compressor
     }
 
     readonly static Random rng = new Random();
-    (string destination_unchanged, string destination_modified) GetPath(string filename, string extension = null, bool generateSuffix = true)
+    (string destination_unchanged, string destination_modified) GetPath(string filename, string extension, bool generateSuffix)
     {
         extension = extension?.GetExtensionWithoutDot();
 
@@ -158,7 +158,10 @@ public class Compressor
 
         // if defined extension is different from original, add a unique suffix to avoid
         // rare cases of multiple files with same names but different extensions merging into one
-        if (generateSuffix && fileExtension.ToLower() != extension.ToLower()) fileNameNoext += $"({rng.Next(0, 1000)}-{fileExtension})";
+        if (generateSuffix && fileExtension.ToLower() != extension.ToLower()) 
+        {
+            fileNameNoext += $"({rng.Next(0, 1000)}-{fileExtension})";
+        }
 
         var destination_unchanged = Path.Combine(destinationDirectory, Path.GetFileName(filename));
         var destination_modified = Path.Combine(destinationDirectory, fileNameNoext + "." + extension);
@@ -391,7 +394,7 @@ public class Compressor
             {
                 try
                 {
-                    var (_, dst) = GetPath(f);
+                    var (_, dst) = GetPath(f, null, false);
                     File.Copy(f, dst, true);
                 }
                 catch (Exception ex)
